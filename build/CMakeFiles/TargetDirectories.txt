@@ -1,0 +1,7 @@
+/home/zac/projects/ncurses/note_taker/build/CMakeFiles/install/strip.dir
+/home/zac/projects/ncurses/note_taker/build/CMakeFiles/install/local.dir
+/home/zac/projects/ncurses/note_taker/build/CMakeFiles/install.dir
+/home/zac/projects/ncurses/note_taker/build/CMakeFiles/list_install_components.dir
+/home/zac/projects/ncurses/note_taker/build/CMakeFiles/rebuild_cache.dir
+/home/zac/projects/ncurses/note_taker/build/CMakeFiles/edit_cache.dir
+/home/zac/projects/ncurses/note_taker/build/CMakeFiles/note_taker.dir
