@@ -4,16 +4,21 @@
 #include <ncurses.h>
 #include <menu.h>
 #include <panel.h>
+#include <array>
 
 #include <string>
 
 class App {
   struct Data {
     bool hidden;
+    bool start;
+    bool end;
     PANEL* next;
     PANEL* prev;
     PANEL* selection_box;
     PANEL* menu_switch;
+    int w_array_pos;
+    bool open;
     std::string buffer{""};
     std::string file_name{""};
   };
@@ -22,9 +27,12 @@ class App {
     WINDOW** m_wins;
     PANEL** m_pans;
     PANEL* m_top_panel;
+    PANEL* m_end_panel;
+    PANEL* m_start_panel;
     MENU* m_menu;
     ITEM** m_items;
     Data* m_data;
+
 
     int m_open_windows{0};
     int m_num_wins{12};
@@ -44,8 +52,11 @@ class App {
     void init_windows();
     void init_menu();
     void init_data();
-    void menu_loop();
+    void menu_loop(const int ch, int& index, bool& loop);
+    void notes_window_loop(int ch);
+    void main_loop();
     void print_title(PANEL* pan);
+    int find_open_window();
     std::string create_option_box(std::string box_title, PANEL* pan);
   public:
     App(const int wins=12,const int items=6) 
@@ -77,7 +88,7 @@ class App {
       init_data();
       update_panels();
       doupdate();
-      menu_loop();
+      main_loop();
     }
 
   ~App() {
