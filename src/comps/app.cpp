@@ -124,193 +124,6 @@ int App::find_open_window() {
   return -1;
 } 
 
-void App::menu_loop(const int ch, int& index, bool& loop) {
-  switch(ch) {
-    case KEY_UP: {
-      if(index == 0) {
-        menu_driver(m_menu, REQ_LAST_ITEM);
-        index = m_num_items - 1;
-        break;
-      } else {
-        menu_driver(m_menu, REQ_UP_ITEM);
-        --index;
-        break;
-      }
-    }
-    case KEY_DOWN: {
-      if(m_top_panel == m_pans[0]) {
-        if(index == m_num_items - 1) {
-          menu_driver(m_menu, REQ_FIRST_ITEM);
-          index = 0;
-          break;
-        } else {
-          menu_driver(m_menu, REQ_DOWN_ITEM);
-          ++index;
-          break;
-        }
-      } 
-    }
-    case KEY_F(1): {
-      PANEL* temp_pan{m_top_panel};
-      m_top_panel = const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->menu_switch;
-      const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->menu_switch = temp_pan;
-      top_panel(m_top_panel);
-      break;
-    }
-    case 10: {
-      switch(index) {
-        case 1: {
-          Data* menu_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))};
-          std::string new_buffer_title{create_option_box("OPEN", menu_data->selection_box)};
-          if(m_open_windows < m_num_wins) {
-            ++m_open_windows;
-            int available_slot{find_open_window()};
-            Data* new_pan_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[available_slot])))};
-            Data* prev_pan_data;
-            new_pan_data->next = m_pans[1];
-              new_pan_data->end = true;
-              new_pan_data->open = false;
-            new_pan_data->file_name = new_buffer_title.c_str();
-            if(m_open_windows == 3) {
-              new_pan_data-> prev = m_pans[1];
-              new_pan_data->start = true;
-              m_end_panel = m_pans[1];
-              m_start_panel = m_pans[1];
-            } else {
-              prev_pan_data = const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_end_panel)));
-              new_pan_data->prev = m_end_panel;
-              new_pan_data->end = true;
-              new_pan_data->next = m_start_panel;
-              prev_pan_data->end = false;
-              m_end_panel = m_pans[available_slot];
-              Data* first_pan_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_start_panel)))};
-              first_pan_data->prev = m_end_panel;
-            // prev_pan_data->prev = m_pans[m_open_windows - 4];
-              prev_pan_data->next = m_end_panel;
-            }
-            print_title(m_end_panel);
-            m_top_panel = m_end_panel;
-            const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))->menu_switch = m_top_panel;
-            top_panel(m_top_panel);
-            keypad(panel_window(m_top_panel), true);
-          }
-          break;
-        }
-        case 4: {
-          loop = false;
-          break;
-        }
-        case 5: {
-          std::ofstream myfile;
-          PANEL* prev_panel{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->menu_switch};
-          Data* temp_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(prev_panel)))};
-          myfile.open("./" + temp_data->file_name);
-          myfile << temp_data->buffer << '\n';
-          myfile.close();
-          break;
-        }
-        break;
-      }
-    }
-  }
-}
-
-void App::notes_window_loop(const int ch) {
-  int y, x;
-  int begy, begx;
-  int maxy, maxx;
-  getyx(panel_window(m_top_panel), y, x);
-  getbegyx(panel_window(m_top_panel), begy, begx);
-  getmaxyx(panel_window(m_top_panel), maxy, maxx);
-  keypad(panel_window(m_top_panel), true);
-  switch(ch) {
-    case KEY_UP: {
-      if(y > begy + 1) {
-        wmove(panel_window(m_top_panel), y - 1, x);
-      }
-      break;
-    }
-    case KEY_DOWN: {
-      if(y < maxy - 1) {
-        wmove(panel_window(m_top_panel), y + 1, x);
-      }
-      break;
-    }
-    case KEY_LEFT: {
-      if(x > begx + 1) {
-        wmove(panel_window(m_top_panel), y, x - 1);
-      }
-      break;
-    }
-    case KEY_RIGHT: {
-      if(x < maxx - 1) {
-        wmove(panel_window(m_top_panel), y, x + 1);
-      }
-      break;
-    }
-    case KEY_F(1): {
-      PANEL* temp_pan{m_top_panel};
-      m_top_panel = const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->menu_switch;
-      const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->menu_switch = temp_pan;
-      top_panel(m_top_panel);
-      break;
-    }
-    case KEY_F(2): {
-      PANEL* t_panel{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->prev};
-      m_top_panel = t_panel ? t_panel : m_top_panel;
-      const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))->menu_switch = t_panel;
-      top_panel(m_top_panel);
-      break;
-    }
-    case KEY_F(3): {
-      PANEL* t_panel{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->next};
-      m_top_panel = t_panel ? t_panel : m_top_panel;
-      const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))->menu_switch = t_panel;
-      top_panel(m_top_panel);
-      break;
-    }
-    case KEY_F(5): {
-      Data* temp{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))};
-      wclear(panel_window(m_top_panel));
-      PANEL* previous{temp->prev};
-      PANEL* next{temp->next};
-      if(m_top_panel == m_start_panel) {
-        const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(next)))->start = true;
-        temp->start = false;
-        m_start_panel = next;
-      }
-      const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(previous)))->next = temp->next;
-      const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(next)))->prev = temp->prev;
-      temp->buffer = "";
-      temp->file_name = "";
-      if(temp->prev != m_top_panel) {
-        m_top_panel = temp->prev;
-        // wrefresh(panel_window(m_top_panel));
-        top_panel(m_top_panel);
-      } else if(temp->next != m_top_panel) {
-        m_top_panel = temp->next;
-        // wrefresh(panel_window(m_top_panel));
-        top_panel(m_top_panel);
-      }
-      break;
-    }
-    case 10: {
-      waddch(panel_window(m_top_panel), ch);
-      const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->buffer += "\n";
-      break;
-    }
-   case KEY_BACKSPACE: {
-      const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->buffer.pop_back();
-      mvwdelch(panel_window(m_top_panel), y, x - 1);
-      break;
-    } 
-    default: {
-      waddch(panel_window(m_top_panel), ch);
-      const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->buffer += ch;
-    }
-  }
-}
-
 void App::main_loop() {
   bool loop{true};
   int index{0};
@@ -323,5 +136,23 @@ void App::main_loop() {
     }
     update_panels();
     doupdate();
+  }
+}
+
+void App::add_char(char c,Data& data) {
+  if(!data.buffer.empty()) {
+    if(!data.buffer[m_current_line-2].empty())
+      data.buffer[m_current_line-2].insert(data.buffer[m_current_line-2].begin() + m_current_column, c);
+    else
+      data.buffer[m_current_line - 2].push_back(c);
+  } else {
+    l_buffer temp{c};
+    data.buffer.push_back(temp);
+  }
+}
+
+void App::del_char(Data& data) {
+  if(static_cast<int>(data.buffer[m_current_line -2].size()) >= m_current_column && m_current_column >= 0) {
+    data.buffer[m_current_line - 2].erase(data.buffer[m_current_line - 2].begin() + m_current_column - 1);
   }
 }

@@ -8,7 +8,7 @@ include_directories(${CURSES_INCLUDE_DIR})
 find_library(PANEL_LIBRARY panel)
 find_library(MENU_LIBRARY menu)
 
-add_executable(${prj} src/main.cpp src/comps/app.cpp)
+add_executable(${prj} src/main.cpp src/comps/app.cpp src/comps/menu_loop.cpp src/comps/window_loop.cpp)
 target_link_libraries(${prj} ${CURSES_LIBRARIES} ${PANEL_LIBRARY} ${MENU_LIBRARY})
 
 install(TARGETS ${prj} RUNTIME DESTINATION bin)

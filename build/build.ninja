@@ -115,6 +115,18 @@ build CMakeFiles/note_taker.dir/src/comps/app.cpp.o: CXX_COMPILER__note_taker ..
   OBJECT_DIR = CMakeFiles/note_taker.dir
   OBJECT_FILE_DIR = CMakeFiles/note_taker.dir/src/comps
 
+build CMakeFiles/note_taker.dir/src/comps/menu_loop.cpp.o: CXX_COMPILER__note_taker ../src/comps/menu_loop.cpp || cmake_object_order_depends_target_note_taker
+  DEP_FILE = CMakeFiles/note_taker.dir/src/comps/menu_loop.cpp.o.d
+  FLAGS = -std=gnu++17
+  OBJECT_DIR = CMakeFiles/note_taker.dir
+  OBJECT_FILE_DIR = CMakeFiles/note_taker.dir/src/comps
+
+build CMakeFiles/note_taker.dir/src/comps/window_loop.cpp.o: CXX_COMPILER__note_taker ../src/comps/window_loop.cpp || cmake_object_order_depends_target_note_taker
+  DEP_FILE = CMakeFiles/note_taker.dir/src/comps/window_loop.cpp.o.d
+  FLAGS = -std=gnu++17
+  OBJECT_DIR = CMakeFiles/note_taker.dir
+  OBJECT_FILE_DIR = CMakeFiles/note_taker.dir/src/comps
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target note_taker
@@ -123,7 +135,7 @@ build CMakeFiles/note_taker.dir/src/comps/app.cpp.o: CXX_COMPILER__note_taker ..
 #############################################
 # Link the executable note_taker
 
-build note_taker: CXX_EXECUTABLE_LINKER__note_taker CMakeFiles/note_taker.dir/src/main.cpp.o CMakeFiles/note_taker.dir/src/comps/app.cpp.o | /usr/lib/x86_64-linux-gnu/libcurses.so /usr/lib/x86_64-linux-gnu/libform.so /usr/lib/x86_64-linux-gnu/libpanel.so /usr/lib/x86_64-linux-gnu/libmenu.so
+build note_taker: CXX_EXECUTABLE_LINKER__note_taker CMakeFiles/note_taker.dir/src/main.cpp.o CMakeFiles/note_taker.dir/src/comps/app.cpp.o CMakeFiles/note_taker.dir/src/comps/menu_loop.cpp.o CMakeFiles/note_taker.dir/src/comps/window_loop.cpp.o | /usr/lib/x86_64-linux-gnu/libcurses.so /usr/lib/x86_64-linux-gnu/libform.so /usr/lib/x86_64-linux-gnu/libpanel.so /usr/lib/x86_64-linux-gnu/libmenu.so
   LINK_LIBRARIES = -lcurses  /usr/lib/x86_64-linux-gnu/libform.so  /usr/lib/x86_64-linux-gnu/libpanel.so  /usr/lib/x86_64-linux-gnu/libmenu.so
   OBJECT_DIR = CMakeFiles/note_taker.dir
   POST_BUILD = :

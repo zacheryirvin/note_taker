@@ -5,10 +5,13 @@
 #include <menu.h>
 #include <panel.h>
 #include <array>
-
 #include <string>
+#include <vector>
 
 class App {
+  using l_buffer = std::vector<char>;
+  using w_buffer = std::vector<l_buffer>;
+
   struct Data {
     bool hidden;
     bool start;
@@ -19,9 +22,11 @@ class App {
     PANEL* menu_switch;
     int w_array_pos;
     bool open;
-    std::string buffer{""};
+    // std::string buffer{""};
+    w_buffer buffer{};
     std::string file_name{""};
   };
+
   private:
     WINDOW* m_padding_win;
     WINDOW** m_wins;
@@ -48,6 +53,8 @@ class App {
     int m_padding_window_width;
     int m_padding_window_start_x;
     int m_padding_window_start_y;
+    int m_current_line{2};
+    int m_current_column{0};
 
     void init_windows();
     void init_menu();
@@ -57,8 +64,11 @@ class App {
     void main_loop();
     void print_title(PANEL* pan);
     int find_open_window();
+    void add_char(char ch, Data& data);
+    void del_char(Data& data);
     std::string create_option_box(std::string box_title, PANEL* pan);
   public:
+
     App(const int wins=12,const int items=6) 
     : m_wins{new WINDOW*[wins]}, m_pans{new PANEL*[wins]}, m_items{new ITEM*[items]}, m_data{new Data[wins]}, m_num_wins{wins}, m_num_items{items}
   {
