@@ -65,7 +65,7 @@ void App::notes_window_loop(const int ch) {
     case KEY_F(5): {
       Data* temp{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))};
       wclear(panel_window(m_top_panel));
-      // temp->buffer = "";
+      temp->buffer.clear();
       temp->file_name = "";
       temp->open = true;
       if(m_open_windows == 3) {

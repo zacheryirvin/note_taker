@@ -35,6 +35,8 @@ class App {
     PANEL* m_end_panel;
     PANEL* m_start_panel;
     MENU* m_menu;
+    // MENU* m_open_menu;
+    // ITEM** m_open_items;
     ITEM** m_items;
     Data* m_data;
 
@@ -66,6 +68,7 @@ class App {
     int find_open_window();
     void add_char(char ch, Data& data);
     void del_char(Data& data);
+    std::string open_file_box(std::string box_title, PANEL* pan);
     std::string create_option_box(std::string box_title, PANEL* pan);
   public:
 

@@ -42,9 +42,71 @@ void App::menu_loop(const int ch, int& index, bool& loop) {
     }
     case 10: {
       switch(index) {
+        case 0: {
+          Data* menu_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))};
+          std::string new_buffer_title{open_file_box("Open File", menu_data->selection_box)};
+          if(m_open_windows < m_num_wins) {
+            ++m_open_windows;
+            int available_slot{find_open_window()};
+            Data* new_pan_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[available_slot])))};
+            Data* prev_pan_data;
+            new_pan_data->next = m_pans[1];
+              new_pan_data->end = true;
+              new_pan_data->open = false;
+            new_pan_data->file_name = new_buffer_title.c_str();
+            if(m_open_windows == 3) {
+              new_pan_data-> prev = m_pans[1];
+              new_pan_data->start = true;
+              m_end_panel = m_pans[1];
+              m_start_panel = m_pans[1];
+             } else {
+              prev_pan_data = const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_end_panel)));
+              new_pan_data->prev = m_end_panel;
+              new_pan_data->end = true;
+              new_pan_data->next = m_start_panel;
+              prev_pan_data->end = false;
+              m_end_panel = m_pans[available_slot];
+              Data* first_pan_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_start_panel)))};
+              first_pan_data->prev = m_end_panel;
+          prev_pan_data->prev = m_pans[m_open_windows - 4];
+              prev_pan_data->next = m_end_panel;
+            }
+            print_title(m_end_panel);
+            m_top_panel = m_end_panel;
+            const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))->menu_switch = m_top_panel; 
+            Data* buffer_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))};
+            std::string current_line;
+            std::ifstream my_file{"/home/zac/projects/ncurses/note_taker/build/notes/" + new_buffer_title};
+            if(my_file.is_open()) {
+              int line_count {0};
+              while(std::getline(my_file, current_line)) {
+                std::vector<char> new_vec{};
+                buffer_data->buffer.push_back(new_vec);
+                for(const auto c : current_line) {
+                  buffer_data->buffer[line_count].push_back(c) ;
+                }
+                buffer_data->buffer[line_count].push_back('\n');
+                ++line_count;
+              }
+              my_file.close();
+            } else {
+              mvwprintw(panel_window(m_top_panel), LINES-1, 3, "ERROR");
+            }
+            wmove(panel_window(m_top_panel), 2,0);
+            for(const auto v : buffer_data->buffer) {
+              for(const auto c : v) {
+                waddch(panel_window(m_top_panel), c);
+              }
+            }
+            wmove(panel_window(m_top_panel), 2,0);
+            top_panel(m_top_panel);
+            keypad(panel_window(m_top_panel), true);
+          }
+          break;
+        }
         case 1: {
           Data* menu_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))};
-          std::string new_buffer_title{create_option_box("OPEN", menu_data->selection_box)};
+          std::string new_buffer_title{create_option_box("New File", menu_data->selection_box)};
           if(m_open_windows < m_num_wins) {
             ++m_open_windows;
             int available_slot{find_open_window()};

@@ -4,6 +4,9 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
+#include <regex>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 #include "app.h"
 
@@ -80,6 +83,84 @@ void App::print_title(PANEL* pan) {
   mvwprintw(temp_win, 1, (w_cols - string_length)/2, temp_text.c_str());
   wattroff(temp_win, A_BOLD);
   wrefresh(temp_win);
+}
+
+std::string App::open_file_box(std::string box_title, PANEL* pan) {
+  std::string path{"/home/zac/projects/ncurses/note_taker/build/notes"};
+  MENU* open_menu;
+  ITEM** open_items;
+  std::vector<std::string> file_read_in{};
+  std::regex parse_file("[^/]+$");
+  std::smatch o_match;
+  std::string open_file{};
+
+  WINDOW* border_win = newwin(12, 40, (LINES - 20)/2, (COLS - 20)/2);
+  box(border_win, 0, 0);
+  wrefresh(border_win);
+  m_top_panel = pan;
+  top_panel(m_top_panel);
+  mvwprintw(panel_window(m_top_panel), 1, (getmaxx(panel_window(m_top_panel)) - box_title.length())/2, box_title.c_str());
+  for(const auto& f : fs::directory_iterator(path)) {
+    std::string temp{f.path()};
+    if(std::regex_search(temp, o_match, parse_file))
+      file_read_in.push_back(o_match.str());
+  }
+
+  open_items = new ITEM*[file_read_in.size()];
+  open_items[file_read_in.size() + 1] = nullptr;
+  for(int i{0}; i < static_cast<int>(file_read_in.size()); ++i) {
+    open_items[i] = new_item(file_read_in[i].c_str(), "->");
+  }
+  open_menu = new_menu(open_items);
+  set_menu_win(open_menu, panel_window(m_top_panel));
+  set_menu_sub(open_menu, derwin(panel_window(m_top_panel), 5, 15, 2, 1));
+  post_menu(open_menu);
+  wrefresh(panel_window(m_top_panel));
+  int index{0};
+  bool loop{true};
+  while(loop) {
+    int ch{wgetch(panel_window(m_top_panel))};
+    switch(ch) {
+      case KEY_UP: {
+        if(index == 0) {
+          menu_driver(open_menu, REQ_LAST_ITEM);
+          index = file_read_in.size() -1;
+        } else {
+          menu_driver(open_menu, REQ_UP_ITEM);
+          ++index;
+        }
+        break;
+      }
+      case KEY_DOWN: {
+        if(index == static_cast<int>(file_read_in.size()) -1) {
+          menu_driver(open_menu, REQ_FIRST_ITEM);
+          index = 0;
+        } else {
+          menu_driver(open_menu, REQ_DOWN_ITEM);
+          --index;
+        }
+        break;
+      }
+      case 10: {
+        open_file = file_read_in[index];
+        loop = false;
+        break;
+      }
+    }
+  }
+
+  unpost_menu(open_menu);
+  for(int i{0}; i < static_cast<int>(file_read_in.size()); ++i) {
+    delete[] open_items[i];
+    open_items[i] = nullptr;
+  }
+  delete[] open_menu;
+  open_menu = nullptr;
+  delwin(border_win);
+  wclear(panel_window(m_top_panel));
+  hide_panel(m_top_panel);
+
+  return open_file;
 }
 
 std::string App::create_option_box(std::string box_title, PANEL* pan) {
