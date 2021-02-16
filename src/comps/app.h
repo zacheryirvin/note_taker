@@ -20,9 +20,9 @@ class App {
     PANEL* prev;
     PANEL* selection_box;
     PANEL* menu_switch;
-    int w_array_pos;
+    int w_current_line;
+    int w_current_col;
     bool open;
-    // std::string buffer{""};
     w_buffer buffer{};
     std::string file_name{""};
   };
@@ -68,6 +68,7 @@ class App {
     int find_open_window();
     void add_char(char ch, Data& data);
     void del_char(Data& data);
+    void show_text(const w_buffer buffer, int start, int end);
     std::string open_file_box(std::string box_title, PANEL* pan);
     std::string create_option_box(std::string box_title, PANEL* pan);
   public:

@@ -68,7 +68,6 @@ void App::menu_loop(const int ch, int& index, bool& loop) {
               m_end_panel = m_pans[available_slot];
               Data* first_pan_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_start_panel)))};
               first_pan_data->prev = m_end_panel;
-          prev_pan_data->prev = m_pans[m_open_windows - 4];
               prev_pan_data->next = m_end_panel;
             }
             print_title(m_end_panel);
@@ -130,7 +129,6 @@ void App::menu_loop(const int ch, int& index, bool& loop) {
               m_end_panel = m_pans[available_slot];
               Data* first_pan_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_start_panel)))};
               first_pan_data->prev = m_end_panel;
-            // prev_pan_data->prev = m_pans[m_open_windows - 4];
               prev_pan_data->next = m_end_panel;
             }
             print_title(m_end_panel);
@@ -150,12 +148,12 @@ void App::menu_loop(const int ch, int& index, bool& loop) {
           std::ofstream myfile;
           PANEL* prev_panel{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->menu_switch};
           Data* temp_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(prev_panel)))};
-          myfile.open("./" + temp_data->file_name);
+          myfile.open("/home/zac/projects/ncurses/note_taker/build/notes/" + temp_data->file_name);
           for(auto v : temp_data->buffer) {
             for(auto c : v) {
               myfile << c;
             }
-            myfile << '\n';
+            // myfile << '\n';
           }
           // myfile << temp_data->buffer << '\n';
           myfile.close();

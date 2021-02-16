@@ -32,6 +32,8 @@ void App::init_windows() {
         hide_panel(m_pans[i]);
       }
     }
+    idlok(m_wins[i], true);
+    scrollok(m_wins[i], true);
   }
 }
 
@@ -48,7 +50,8 @@ void App::init_data() {
       m_data[i].open = true;
       m_data[i].file_name = "";
     } 
-    m_data[i].w_array_pos = i;
+    m_data[i].w_current_col = 0;
+    m_data[i].w_current_line = 2;
     set_panel_userptr(m_pans[i], &m_data[i]);
   }
 }
@@ -86,7 +89,7 @@ void App::print_title(PANEL* pan) {
 }
 
 std::string App::open_file_box(std::string box_title, PANEL* pan) {
-  std::string path{"/home/zac/projects/ncurses/note_taker/build/notes"};
+  std::string path{"/home/zac/projects/ncurses/note_taker/build/notes/"};
   MENU* open_menu;
   ITEM** open_items;
   std::vector<std::string> file_read_in{};
@@ -107,7 +110,7 @@ std::string App::open_file_box(std::string box_title, PANEL* pan) {
   }
 
   open_items = new ITEM*[file_read_in.size()];
-  open_items[file_read_in.size() + 1] = nullptr;
+  open_items[file_read_in.size()] = nullptr;
   for(int i{0}; i < static_cast<int>(file_read_in.size()); ++i) {
     open_items[i] = new_item(file_read_in[i].c_str(), "->");
   }
@@ -127,7 +130,7 @@ std::string App::open_file_box(std::string box_title, PANEL* pan) {
           index = file_read_in.size() -1;
         } else {
           menu_driver(open_menu, REQ_UP_ITEM);
-          ++index;
+          --index;
         }
         break;
       }
@@ -137,7 +140,7 @@ std::string App::open_file_box(std::string box_title, PANEL* pan) {
           index = 0;
         } else {
           menu_driver(open_menu, REQ_DOWN_ITEM);
-          --index;
+          ++index;
         }
         break;
       }
@@ -235,5 +238,13 @@ void App::add_char(char c,Data& data) {
 void App::del_char(Data& data) {
   if(static_cast<int>(data.buffer[m_current_line -2].size()) >= m_current_column && m_current_column >= 0) {
     data.buffer[m_current_line - 2].erase(data.buffer[m_current_line - 2].begin() + m_current_column - 1);
+  }
+}
+
+void App::show_text(const w_buffer buffer, int start, int end) {
+  for(int i{start}; i < end; ++i) {
+    for(int j{0}; j < static_cast<int>(buffer[i].size()); ++j) {
+      wprintw(panel_window(m_top_panel), "%c", buffer[i][j]);
+    }
   }
 }

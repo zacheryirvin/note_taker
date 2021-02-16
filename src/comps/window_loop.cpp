@@ -5,26 +5,50 @@
 #include "app.h"
 
 void App::notes_window_loop(const int ch) {
+  PANEL* temp{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->menu_switch};
+  Data* panel_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))};
+  w_buffer current_buffer{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->buffer};
   int y, x;
   int begy, begx;
   int maxy, maxx;
+  int start{0};
+  int end{m_height};
+  int doc_size{static_cast<int>(current_buffer.size())};
   getyx(panel_window(m_top_panel), y, x);
   getbegyx(panel_window(m_top_panel), begy, begx);
   getmaxyx(panel_window(m_top_panel), maxy, maxx);
   keypad(panel_window(m_top_panel), true);
+  if(panel_data->w_current_line != m_current_line || panel_data->w_current_col != m_current_column) {
+    m_current_line = panel_data->w_current_line;
+    m_current_column = panel_data->w_current_col;
+    wmove(panel_window(m_top_panel), m_current_line, m_current_column);
+  }
   switch(ch) {
     case KEY_UP: {
-      if(y > begy + 1) {
+      if(y > begy + 1 && y < end) {
         wmove(panel_window(m_top_panel), y - 1, x);
         --m_current_line;
+      } else if(y == begy + 1 && m_current_line > 2) {
+        show_text(current_buffer, start, end);
+        --start;
+        --end;
+        --m_current_line;
       }
+      panel_data->w_current_line = m_current_line;
       break;
     }
     case KEY_DOWN: {
-      if(y < maxy - 1) {
+      if(y < maxy - 1 && y <= doc_size) {
         wmove(panel_window(m_top_panel), y + 1, x);
         ++m_current_line;
+        mvwprintw(panel_window(temp), LINES - 1, 2, "%d, %d", m_current_line, current_buffer.size());
+      } else if(y == maxy - 1) {
+        show_text(current_buffer, start, end);
+        ++start;
+        ++end;
+        ++m_current_line;
       }
+      panel_data->w_current_line = m_current_line;
       break;
     }
     case KEY_LEFT: {
@@ -32,13 +56,15 @@ void App::notes_window_loop(const int ch) {
         wmove(panel_window(m_top_panel), y, x - 1);
         --m_current_column;
       }
+      panel_data->w_current_col = m_current_column;
       break;
     }
     case KEY_RIGHT: {
-      if(x < maxx - 1) {
+      if(x < maxx - 1 && x < static_cast<int>(current_buffer[m_current_line - 2].size())) {
         wmove(panel_window(m_top_panel), y, x + 1);
         ++m_current_column;
       }
+      panel_data->w_current_col = m_current_column;
       break;
     }
     case KEY_F(1): {
@@ -68,6 +94,8 @@ void App::notes_window_loop(const int ch) {
       temp->buffer.clear();
       temp->file_name = "";
       temp->open = true;
+      // temp->next = nullptr;
+      // temp->prev = nullptr;
       if(m_open_windows == 3) {
         const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))->menu_switch = nullptr;
         m_top_panel = m_pans[0];
@@ -96,11 +124,16 @@ void App::notes_window_loop(const int ch) {
       break;
     }
     case 10: {
-      waddch(panel_window(m_top_panel), ch);
-      l_buffer temp{};
-      const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->buffer.push_back(temp);
-      ++m_current_line;
-      m_current_column = 0;
+      if(m_current_line-2 == static_cast<int>(current_buffer.size() - 1) || (m_current_line - 2 == 0 && static_cast<int>(current_buffer.size()) == 0)) {
+        waddch(panel_window(m_top_panel), ch);
+        l_buffer temp{};
+        const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->buffer.push_back(temp);
+        const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->buffer.back().push_back('\n');
+        ++m_current_line;
+        m_current_column = 0;
+      }
+      panel_data->w_current_line = m_current_line;
+      panel_data->w_current_col = m_current_column;
       break;
     }
    case KEY_BACKSPACE: {
@@ -110,6 +143,7 @@ void App::notes_window_loop(const int ch) {
         del_char(*data);
         --m_current_column;
       }
+      panel_data->w_current_col = m_current_column;
       break;
     } 
     default: {
@@ -125,8 +159,11 @@ void App::notes_window_loop(const int ch) {
         mvwprintw(panel_window(m_top_panel), m_current_line, m_current_column, temp_buff.c_str());
         wmove(panel_window(m_top_panel), m_current_line, m_current_column + 1);
       } else
-        mvwprintw(panel_window(m_top_panel), m_current_line, m_current_column, "%c", ch);
+        // mvwprintw(panel_window(m_top_panel), m_current_line, m_current_column, "%c", ch);
+        waddch(panel_window(m_top_panel), ch);
       ++m_current_column;
+      panel_data->w_current_col = m_current_column;
     }
+    mvwprintw(panel_window(temp), LINES - 1, 2, "%d", ch);
   }
 }
