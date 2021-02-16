@@ -32,8 +32,6 @@ void App::init_windows() {
         hide_panel(m_pans[i]);
       }
     }
-    idlok(m_wins[i], true);
-    scrollok(m_wins[i], true);
   }
 }
 

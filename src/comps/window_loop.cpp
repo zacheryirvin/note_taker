@@ -123,7 +123,37 @@ void App::notes_window_loop(const int ch) {
       --m_open_windows;
       break;
     }
+    case 9: {
+      Data* data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))};
+      for(int i{0}; i < 4; ++i) {
+        add_char(' ', *data);
+      }
+      if(m_current_column != static_cast<int>(data->buffer[m_current_line-2].size())-1) {
+        std::string temp_buff{""};
+        for(int i{m_current_column}; i < static_cast<int>(data->buffer[m_current_line -2].size()); ++i) {
+          temp_buff += data->buffer[m_current_line-2][i];
+        }
+        wclrtoeol(panel_window(m_top_panel));
+        mvwprintw(panel_window(m_top_panel), m_current_line, m_current_column, temp_buff.c_str());
+        wmove(panel_window(m_top_panel), m_current_line, m_current_column + 4);
+      } else
+        // mvwprintw(panel_window(m_top_panel), m_current_line, m_current_column, "%c", ch);
+        waddstr(panel_window(m_top_panel), "    ");
+      m_current_column += 4;
+      panel_data->w_current_col = m_current_column;
+      break;
+
+    }
     case 10: {
+      Data* data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))};
+      l_buffer new_line{};
+      data->buffer.push_back(new_line);
+      for(int i{m_current_line}; i < static_cast<int>(data->buffer.size()-1); ++i) {
+        wclrteol(panel_window(m_top_panel));
+        for(int j{i == m_current_line ? m_current_column : 0}; j < static_cast<int>(data->buffer[m_current_line -2][j]); ++j) {
+          mvwprintw(panel_window(m_top_panel), i, j, data->buffer[]);
+        }
+      }
       if(m_current_line-2 == static_cast<int>(current_buffer.size() - 1) || (m_current_line - 2 == 0 && static_cast<int>(current_buffer.size()) == 0)) {
         waddch(panel_window(m_top_panel), ch);
         l_buffer temp{};
