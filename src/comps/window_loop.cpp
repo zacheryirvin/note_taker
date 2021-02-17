@@ -31,11 +31,11 @@ void App::notes_window_loop(const int ch) {
         if(prev_line > -1) {
           if(prev_line < x) {
             wmove(panel_window(m_top_panel), y - 1, prev_line);
-            m_current_column = prev_line;
           } else
             wmove(panel_window(m_top_panel), y - 1, x);
         }
         --m_current_line;
+        m_current_column = prev_line;
        } //else if(y == begy + 1 && m_current_line > 2) {
         // show_text(current_buffer, start, end);
         // --start;
@@ -51,12 +51,12 @@ void App::notes_window_loop(const int ch) {
         if(next_line > -1) {
           if(next_line < x) {
             wmove(panel_window(m_top_panel), y + 1, next_line);
-            m_current_column = next_line;
           } else {
             wmove(panel_window(m_top_panel), y + 1, x);
           }
         }
         ++m_current_line;
+        m_current_column = next_line;
        } //else if(y == maxy - 1) {
         // show_text(current_buffer, start, end);
         // ++start;
@@ -162,30 +162,20 @@ void App::notes_window_loop(const int ch) {
     }
     case 10: {
       Data* data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))};
-      l_buffer new_line{};
-      data->buffer.push_back(new_line);
-      waddch(panel_window(m_top_panel), ch);
-      for(int i{m_current_line - 2}; i < static_cast<int>(data->buffer.size()-1); ++i) {
-        int j{i == m_current_line - 2 ? m_current_column : 0};
-        l_buffer temp{data->buffer[i].begin() + j, data->buffer[i].end()};
-        wclrtoeol(panel_window(m_top_panel));
-        for(int k{0}; k < static_cast<int>(temp.size()); ++k) {
-          mvwprintw(panel_window(m_top_panel), i + 1, k, "%c", temp[k]);
+      add_line(*data);
+      mvwprintw(panel_window(temp), LINES - 2, 2, "%d, %d, %d", data->buffer.size(), m_current_line, data->buffer[m_current_line - 2].empty());
+      wmove(panel_window(m_top_panel), m_current_line, 0);
+      wclrtobot(panel_window(m_top_panel));
+      for(int i{m_current_line - 2}; i < static_cast<int>(data->buffer.size()); ++i) {
+        for(int j{0}; j < static_cast<int>(data->buffer[i].size() - 1); ++j) {
+          mvwprintw(panel_window(m_top_panel), i + 2, j, "%c", data->buffer[i][j]);
         }
-        wclrtoeol(panel_window(m_top_panel));
       }
-      // if(m_current_line-2 == static_cast<int>(current_buffer.size() - 1) || (m_current_line - 2 == 0 && static_cast<int>(current_buffer.size()) == 0)) {
-        // waddch(panel_window(m_top_panel), ch);
-        // l_buffer temp{};
-        // const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->buffer.push_back(temp);
-        // const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->buffer.back().push_back('\n');
-        // ++m_current_line;
-        // m_current_column = 0;
-      // }
       ++m_current_line;
       m_current_column = 0;
       panel_data->w_current_line = m_current_line;
       panel_data->w_current_col = m_current_column;
+      wmove(panel_window(m_top_panel), m_current_line, m_current_column);
       break;
     }
    case KEY_BACKSPACE: {
@@ -215,7 +205,6 @@ void App::notes_window_loop(const int ch) {
         waddch(panel_window(m_top_panel), ch);
       ++m_current_column;
       panel_data->w_current_col = m_current_column;
-      mvwprintw(panel_window(temp), LINES - 1, 2, "%d, %d, %d, %d   ", panel_data->w_current_col, m_current_column, data->buffer[m_current_line-2].size(), m_current_column);
     }
     break;
   }

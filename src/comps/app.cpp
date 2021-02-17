@@ -95,7 +95,7 @@ std::string App::open_file_box(std::string box_title, PANEL* pan) {
   std::smatch o_match;
   std::string open_file{};
 
-  WINDOW* border_win = newwin(12, 40, (LINES - 20)/2, (COLS - 20)/2);
+  WINDOW* border_win = newwin(13, 40, (LINES - 20)/2, (COLS - 20)/2);
   box(border_win, 0, 0);
   wrefresh(border_win);
   m_top_panel = pan;
@@ -218,6 +218,37 @@ void App::main_loop() {
     }
     update_panels();
     doupdate();
+  }
+}
+
+void App::add_line(Data& data) {
+  if(data.buffer.empty()) {
+    l_buffer temp{static_cast<char>('\n')};
+    l_buffer ttemp{};
+    data.buffer.push_back(temp);
+    data.buffer.push_back(ttemp);
+  }
+  if(data.buffer[m_current_line - 2].empty()) {
+    l_buffer ttemp{};
+    if(m_current_line - 2 == static_cast<int>(data.buffer.size() -1)) {
+      data.buffer[m_current_line - 2].push_back(static_cast<char>('\n'));
+      data.buffer.push_back(ttemp);
+    } else {
+      data.buffer.insert(data.buffer.begin() + m_current_line - 2, ttemp);
+    }
+  } else if(!data.buffer[m_current_line - 2].empty()) {
+    l_buffer p_line{data.buffer[m_current_line - 2].begin(), data.buffer[m_current_line -2].begin() + m_current_column};
+    l_buffer n_line{data.buffer[m_current_line - 2].begin() + m_current_column, data.buffer[m_current_line - 2].end()};
+    p_line.push_back(static_cast<char>('\n'));
+    data.buffer[m_current_line - 2].clear();
+    for(auto c : p_line) {
+      data.buffer[m_current_line - 2].push_back(c);
+    }
+    if(m_current_line - 2 == static_cast<int>(data.buffer.size() -1)) {
+      data.buffer.push_back(n_line);
+    } else {
+      data.buffer.insert(data.buffer.begin() + m_current_line, n_line);
+    }
   }
 }
 

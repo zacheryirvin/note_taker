@@ -67,6 +67,7 @@ class App {
     void print_title(PANEL* pan);
     int find_open_window();
     void add_char(char ch, Data& data);
+    void add_line(Data& data);
     void del_char(Data& data);
     void show_text(const w_buffer buffer, int start, int end);
     std::string open_file_box(std::string box_title, PANEL* pan);
