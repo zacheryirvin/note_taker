@@ -141,6 +141,54 @@ void App::menu_loop(const int ch, int& index, bool& loop) {
           wmove(panel_window(m_top_panel), 2,0);
           break;
         }
+        case 2: {
+          PANEL* switch_panel{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_top_panel)))->menu_switch};
+          Data* temp{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(switch_panel)))};
+          wclear(panel_window(switch_panel));
+          temp->buffer.clear();
+          temp->file_name = "";
+          temp->open = true;
+          temp->w_current_col = 0;
+          temp->w_current_line = 2;
+          temp->end = false;
+          if(m_open_windows == 3) {
+            m_top_panel = m_pans[0];
+            m_start_panel = m_pans[1];
+            m_end_panel = m_pans[1];
+            const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))->menu_switch = nullptr;
+            top_panel(m_top_panel);
+          } else {
+            PANEL* previous{temp->prev};
+            PANEL* next{temp->next};
+            if(m_top_panel == m_start_panel) {
+              const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(next)))->start = true;
+              temp->start = false;
+              m_start_panel = next;
+            }
+            const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(previous)))->next = temp->next;
+            const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(next)))->prev = temp->prev;
+            Data* menu_panel{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))};
+            if(temp->prev != menu_panel->menu_switch) {
+              menu_panel->menu_switch = temp->prev;
+              // m_top_panel = temp->prev;
+              top_panel(temp->prev);
+              update_panels();
+              doupdate();
+              top_panel(m_top_panel);
+            } else if(temp->next != menu_panel->menu_switch) {
+              menu_panel->menu_switch = temp->next;
+              // m_top_panel = temp->next;
+              top_panel(temp->next);
+              update_panels();
+              doupdate();
+              top_panel(m_top_panel);
+            }
+          }
+          temp->next = nullptr;
+          temp->prev = nullptr;
+          --m_open_windows;
+          break;
+        }
         case 4: {
           loop = false;
           break;
