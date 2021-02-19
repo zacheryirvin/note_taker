@@ -101,11 +101,15 @@ void App::notes_window_loop(const int ch) {
       temp->buffer.clear();
       temp->file_name = "";
       temp->open = true;
-      // temp->next = nullptr;
-      // temp->prev = nullptr;
+      temp->w_current_col = 0;
+      temp->w_current_line = 2;
+      temp->end = false;
+      temp->start = false;
       if(m_open_windows == 3) {
-        const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))->menu_switch = nullptr;
         m_top_panel = m_pans[0];
+        m_start_panel = m_pans[1];
+        m_end_panel = m_pans[1];
+        const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))->menu_switch = nullptr;
         top_panel(m_top_panel);
       } else {
         PANEL* previous{temp->prev};
@@ -127,6 +131,8 @@ void App::notes_window_loop(const int ch) {
           top_panel(m_top_panel);
         }
       }
+      temp->next = nullptr;
+      temp->prev = nullptr;
       --m_open_windows;
       break;
     }
@@ -157,7 +163,7 @@ void App::notes_window_loop(const int ch) {
       mvwprintw(panel_window(temp), LINES - 2, 2, "%d, %d, %d", data->buffer.size(), m_current_line, data->buffer[m_current_line - 2].empty());
       wmove(panel_window(m_top_panel), m_current_line, 0);
       wclrtobot(panel_window(m_top_panel));
-      for(int i{m_current_line - 2}; i < static_cast<int>(data->buffer.size()); ++i) {
+      for (int i{m_current_line - 2}; i < static_cast<int>(data->buffer.size()); ++i) {
         for(int j{0}; j < static_cast<int>(data->buffer[i].size()); ++j) {
           mvwprintw(panel_window(m_top_panel), i + 2, j, "%c", data->buffer[i][j]);
         }

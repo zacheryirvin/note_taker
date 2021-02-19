@@ -48,11 +48,12 @@ void App::menu_loop(const int ch, int& index, bool& loop) {
           if(m_open_windows < m_num_wins) {
             ++m_open_windows;
             int available_slot{find_open_window()};
+            mvwprintw(panel_window(m_pans[0]), LINES - 2, 2, "%d", available_slot);
             Data* new_pan_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[available_slot])))};
             Data* prev_pan_data;
-            new_pan_data->next = m_pans[1];
-              new_pan_data->end = true;
-              new_pan_data->open = false;
+            new_pan_data->next = m_start_panel;
+            new_pan_data->end = true;
+            new_pan_data->open = false;
             new_pan_data->file_name = new_buffer_title.c_str();
             if(m_open_windows == 3) {
               new_pan_data-> prev = m_pans[1];
@@ -97,10 +98,10 @@ void App::menu_loop(const int ch, int& index, bool& loop) {
                 waddch(panel_window(m_top_panel), c);
               }
             }
-            wmove(panel_window(m_top_panel), 2,0);
-            top_panel(m_top_panel);
-            keypad(panel_window(m_top_panel), true);
           }
+          wmove(panel_window(m_top_panel), 2,0);
+          top_panel(m_top_panel);
+          keypad(panel_window(m_top_panel), true);
           break;
         }
         case 1: {
@@ -111,9 +112,9 @@ void App::menu_loop(const int ch, int& index, bool& loop) {
             int available_slot{find_open_window()};
             Data* new_pan_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[available_slot])))};
             Data* prev_pan_data;
-            new_pan_data->next = m_pans[1];
-              new_pan_data->end = true;
-              new_pan_data->open = false;
+            new_pan_data->next = m_start_panel;
+            new_pan_data->end = true;
+            new_pan_data->open = false;
             new_pan_data->file_name = new_buffer_title.c_str();
             if(m_open_windows == 3) {
               new_pan_data-> prev = m_pans[1];

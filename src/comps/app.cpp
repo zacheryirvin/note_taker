@@ -33,6 +33,8 @@ void App::init_windows() {
       }
     }
   }
+  m_start_panel = m_pans[1];
+  m_end_panel = m_pans[1];
 }
 
 void App::init_data() {
@@ -107,11 +109,11 @@ std::string App::open_file_box(std::string box_title, PANEL* pan) {
       file_read_in.push_back(o_match.str());
   }
 
-  open_items = new ITEM*[file_read_in.size()];
-  open_items[file_read_in.size()] = nullptr;
+  open_items = new ITEM*[file_read_in.size() + 1];
   for(int i{0}; i < static_cast<int>(file_read_in.size()); ++i) {
     open_items[i] = new_item(file_read_in[i].c_str(), "->");
   }
+  open_items[file_read_in.size()] = nullptr;
   open_menu = new_menu(open_items);
   set_menu_win(open_menu, panel_window(m_top_panel));
   set_menu_sub(open_menu, derwin(panel_window(m_top_panel), 5, 15, 2, 1));
@@ -133,7 +135,7 @@ std::string App::open_file_box(std::string box_title, PANEL* pan) {
         break;
       }
       case KEY_DOWN: {
-        if(index == static_cast<int>(file_read_in.size()) -1) {
+        if(index == static_cast<int>(file_read_in.size()-1)) {
           menu_driver(open_menu, REQ_FIRST_ITEM);
           index = 0;
         } else {
@@ -150,11 +152,12 @@ std::string App::open_file_box(std::string box_title, PANEL* pan) {
     }
   }
 
-  unpost_menu(open_menu);
   for(int i{0}; i < static_cast<int>(file_read_in.size()); ++i) {
     delete[] open_items[i];
     open_items[i] = nullptr;
   }
+  delete[] open_items;
+  open_items = nullptr;
   delete[] open_menu;
   open_menu = nullptr;
   delwin(border_win);
@@ -254,14 +257,18 @@ void App::add_line(Data& data) {
 
 void App::add_char(char c,Data& data) {
   if(!data.buffer.empty()) {
-    if(!data.buffer[m_current_line-2].empty())
-      if(m_current_column == data.buffer[m_current_line - 2].size()) {
-        data.buffer[m_current_line - 2].pop_back();
-        data.buffer[m_current_line - 2].push_back(c);
+    if(!data.buffer[m_current_line-2].empty()) {
+      if(m_current_column == static_cast<int>(data.buffer[m_current_line - 2].size())) {
+        if(data.buffer[m_current_line -2][data.buffer[m_current_line - 2].size() -1] == '\n') {
+          data.buffer[m_current_line - 2].pop_back();
+          data.buffer[m_current_line - 2].push_back(c);
+        } else {
+          data.buffer[m_current_line - 2].push_back(c);
+        }
       } else {
         data.buffer[m_current_line-2].insert(data.buffer[m_current_line-2].begin() + m_current_column, c);
       }
-    else
+    } else
       data.buffer[m_current_line - 2].push_back(c);
   } else {
     l_buffer temp{c};
