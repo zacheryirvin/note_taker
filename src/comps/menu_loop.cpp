@@ -189,6 +189,13 @@ void App::menu_loop(const int ch, int& index, bool& loop) {
           --m_open_windows;
           break;
         }
+        case 3: {
+          Data* menu_data{const_cast<Data*>(reinterpret_cast<const Data*>(panel_userptr(m_pans[0])))};
+          std::string test{open_file_box("Delete File", menu_data->selection_box, true)};
+          m_top_panel = m_pans[0];
+          top_panel(m_top_panel);
+          break;
+        }
         case 4: {
           loop = false;
           break;

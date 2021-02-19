@@ -88,7 +88,7 @@ void App::print_title(PANEL* pan) {
   wrefresh(temp_win);
 }
 
-std::string App::open_file_box(std::string box_title, PANEL* pan) {
+std::string App::open_file_box(std::string box_title, PANEL* pan, bool del) {
   std::string path{"/home/zac/projects/ncurses/note_taker/build/notes/"};
   MENU* open_menu;
   ITEM** open_items;
@@ -145,7 +145,12 @@ std::string App::open_file_box(std::string box_title, PANEL* pan) {
         break;
       }
       case 10: {
-        open_file = file_read_in[index];
+        if(del) {
+          std::string base{"/home/zac/projects/ncurses/note_taker/build/notes/" + file_read_in[index]};
+          std::filesystem::remove(base);
+        } else {
+          open_file = file_read_in[index];
+        }
         loop = false;
         break;
       }
@@ -160,6 +165,9 @@ std::string App::open_file_box(std::string box_title, PANEL* pan) {
   open_items = nullptr;
   delete[] open_menu;
   open_menu = nullptr;
+  
+  wborder(border_win, ' ',' ',' ',' ',' ',' ',' ',' ');
+  wrefresh(border_win);
   delwin(border_win);
   wclear(panel_window(m_top_panel));
   hide_panel(m_top_panel);

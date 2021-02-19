@@ -70,7 +70,7 @@ class App {
     void add_line(Data& data);
     void del_char(Data& data);
     void show_text(const w_buffer buffer, int start, int end);
-    std::string open_file_box(std::string box_title, PANEL* pan);
+    std::string open_file_box(std::string box_title, PANEL* pan, bool del=false);
     std::string create_option_box(std::string box_title, PANEL* pan);
   public:
 
