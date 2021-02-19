@@ -84,7 +84,7 @@ void App::menu_loop(const int ch, int& index, bool& loop) {
                 for(const auto c : current_line) {
                   buffer_data->buffer[line_count].push_back(c) ;
                 }
-                buffer_data->buffer[line_count].push_back('\n');
+                buffer_data->buffer[line_count].push_back(static_cast<char>('\n'));
                 ++line_count;
               }
               my_file.close();

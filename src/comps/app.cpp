@@ -247,7 +247,7 @@ void App::add_line(Data& data) {
     if(m_current_line - 2 == static_cast<int>(data.buffer.size() -1)) {
       data.buffer.push_back(n_line);
     } else {
-      data.buffer.insert(data.buffer.begin() + m_current_line, n_line);
+      data.buffer.insert(data.buffer.begin() + m_current_line - 2 + 1, n_line);
     }
   }
 }
@@ -255,7 +255,12 @@ void App::add_line(Data& data) {
 void App::add_char(char c,Data& data) {
   if(!data.buffer.empty()) {
     if(!data.buffer[m_current_line-2].empty())
-      data.buffer[m_current_line-2].insert(data.buffer[m_current_line-2].begin() + m_current_column, c);
+      if(m_current_column == data.buffer[m_current_line - 2].size()) {
+        data.buffer[m_current_line - 2].pop_back();
+        data.buffer[m_current_line - 2].push_back(c);
+      } else {
+        data.buffer[m_current_line-2].insert(data.buffer[m_current_line-2].begin() + m_current_column, c);
+      }
     else
       data.buffer[m_current_line - 2].push_back(c);
   } else {
